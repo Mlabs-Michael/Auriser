@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Auriser — the app store for people who finish things</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="img/auriser-ribbon.svg">
+<link rel="apple-touch-icon" href="img/auriser-touch-icon.png">
+</head>
+<body>
+
+<!-- Ambient backdrop -->
+<div class="grain-field"><canvas id="fieldCanvas"></canvas></div>
+
+<!-- Small ring mark — top corner -->
+<button type="button" class="corner-ring" id="cornerRing" aria-label="Auriser" title="Auriser">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/>
+    <circle cx="12" cy="12" r="2.6" fill="currentColor"/>
+  </svg>
+</button>
+
+<!-- Developer mode — compact floating chip (does not block the UI) -->
+<div class="dev-chip" id="devBanner" hidden>
+  <button type="button" class="dev-chip-toggle" id="devChipToggle" aria-expanded="false" title="Developer mode">
+    <span class="dev-chip-dot"></span>
+    <span class="dev-chip-label">Dev</span>
+  </button>
+  <div class="dev-chip-panel" id="devChipPanel" hidden>
+    <div class="dev-chip-head">
+      <span>Welcome back, <b>Michael</b></span>
+      <span class="dev-chip-mode">Developer mode</span>
+    </div>
+    <p class="dev-chip-hint">Studio tools unlocked. Leave when you're done.</p>
+    <button type="button" class="btn btn-ghost btn-sm" id="leaveDevMode">Leave developer mode</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Onboarding — first-run explanatory sequence
+     ============================================================ -->
+<div class="onboard" id="onboard">
+  <div class="onboard-inner">
+    <div class="onboard-avatar">
+      <img src="img/auriser-ribbon.svg" alt="Auriser" class="mark-ribbon" width="120" height="120" />
+    </div>
+    <div class="onboard-log" id="obLog"></div>
+    <div class="onboard-cta" id="obCta">
+      <button class="btn btn-primary" id="obEnter">Enter Auriser</button>
+      <div><button class="onboard-skip" id="obSkip">Skip the tour</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     App shell
+     ============================================================ -->
+<div class="app-shell">
+
+  <!-- Icon rail -->
+  <aside class="rail">
+    <div class="rail-mark">
+      <img src="img/auriser-ribbon-mark.svg" alt="" class="mark-ribbon rail-ribbon" width="40" height="40" />
+    </div>
+    <nav class="rail-nav">
+      <button class="rail-btn active" data-view="discover" aria-label="Discover">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span class="rail-tip">Discover</span>
+      </button>
+      <button class="rail-btn" data-view="categories" aria-label="Categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <span class="rail-tip">Categories</span>
+      </button>
+      <button class="rail-btn" data-view="library" aria-label="Library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V5a1 1 0 011-1h11l4 4v11a1 1 0 01-1 1H5a1 1 0 01-1-1z"/><path d="M15 4v4h4"/></svg>
+        <span class="rail-tip">Library</span>
+      </button>
+    </nav>
+    <div class="rail-foot">
+      <button class="rail-btn" data-view="studio" aria-label="Create">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></svg>
+        <span class="rail-tip">Create</span>
+      </button>
+      <button class="rail-btn" data-view="settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="rail-tip">Settings</span>
+      </button>
+      <button class="rail-btn" id="replayTour" aria-label="Replay welcome tour">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12a9 9 0 109-9 9.7 9.7 0 00-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg>
+        <span class="rail-tip">Replay tour</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="wordmark"><b>Auriser</b><span>App Store</span></div>
+    <div class="search-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search apps, tools, games…" autocomplete="off" />
+    </div>
+    <div class="topbar-right">
+      <span id="cloudStatus" class="cloud-status" title="Backend status">…</span>
+      <button class="btn-submit-app" id="openPublish" title="Submit an app to Auriser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+        Submit app
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle light / dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </button>
+      <button class="profile-chip" id="profileChip" type="button" title="Account">
+        <span class="dot" id="profileDot"></span>
+        <span id="profileName">Sign in</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ============ Discover ============ -->
+    <section class="view active" id="view-discover">
+      <div class="hero">
+        <div>
+          <p class="hero-eyebrow">Curated, not crowded</p>
+          <h1>Software worth keeping on your machine.</h1>
+          <p>Auriser is a small, hand-reviewed catalogue — every listing here has been opened, used and kept by someone on the editorial bench before it ever reaches your search bar.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-goto="discover">Browse the catalogue</button>
+            <button class="btn btn-ghost" id="heroSubmit">Submit your app</button>
+          </div>
+          <p class="hero-demo-note">Live on Firebase · publish, ratings, and catalogue sync to the cloud. Install is local to this device.</p>
+        </div>
+        <div class="hero-mark" id="heroMark">
+          <canvas id="ribbonCanvas" class="ribbon-canvas" aria-hidden="true"></canvas>
+          <img src="img/auriser-ribbon-mark.svg" alt="Auriser" class="mark-ribbon hero-ribbon" id="heroMarkImg" width="320" height="320" />
+        </div>
+      </div>
+
+      <div class="section company-section" id="companySection" style="display:none;">
+        <div class="section-head">
+          <h2>From MLabs</h2>
+          <span class="see-all" data-goto-cat="mlabs">See all →</span>
+        </div>
+        <p class="company-sub">Software from the Auriser studio — tools we build and ship ourselves.</p>
+        <div class="rail-scroll" id="companyRail"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Editor's picks</h2>
+          <span class="see-all" data-goto="categories">See all →</span>
+        </div>
+        <div class="rail-scroll" id="editorialRail"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Trending now</h2>
+        </div>
+        <div class="rail-scroll" id="trendingRail"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Recently updated</h2>
+        </div>
+        <div class="app-grid" id="recentGrid"></div>
+      </div>
+    </section>
+
+    <!-- ============ Categories ============ -->
+    <section class="view" id="view-categories">
+      <div class="section-head"><h2>Categories</h2></div>
+      <div class="chip-row" id="categoryChips"></div>
+      <div class="app-grid" id="categoryGrid"></div>
+      <div class="empty-state" id="categoryEmpty" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <p>Nothing matches that yet. Try another category or clear the search.</p>
+      </div>
+    </section>
+
+    <!-- ============ Create — icons + MLabs tools ============ -->
+    <section class="view" id="view-studio">
+      <div class="section-head">
+        <h2>Create</h2>
+        <span class="see-all">Icon studio · MLabs workshop</span>
+      </div>
+
+      <div class="create-tabs" id="createTabs">
+        <button type="button" class="create-tab active" data-create="gen">Generate</button>
+        <button type="button" class="create-tab" data-create="custom">Custom design</button>
+        <button type="button" class="create-tab" data-create="company">MLabs apps</button>
+      </div>
+
+      <!-- Generate -->
+      <div class="create-pane active" id="create-gen">
+        <div class="studio-grid create-grid">
+          <div class="studio-panel">
+            <h3>Procedural icons</h3>
+            <p class="sub">Dozens of gold-on-carbon marks — click any to load the stage. Styles mix geometry, monograms, and noise fields.</p>
+            <div class="gen-toolbar">
+              <button class="btn btn-ghost btn-sm" id="genMore">Generate batch</button>
+              <button class="btn btn-ghost btn-sm" id="genClear">Clear grid</button>
+            </div>
+            <div class="gen-grid dense" id="genGrid"></div>
+            <h3 style="margin-top:22px;">Import image</h3>
+            <div class="dropzone" id="dropzone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+              <p>Drop an image, or click to browse</p>
+              <span>PNG / JPG / SVG · stays on device</span>
+              <input type="file" id="fileInput" accept="image/*" />
+            </div>
+          </div>
+          <div class="create-stage-col">
+            <div class="preview-mode-bar" data-target="gen">
+              <button type="button" class="preview-mode active" data-mode="normal">Normal</button>
+              <button type="button" class="preview-mode" data-mode="phone">Phone</button>
+              <button type="button" class="preview-mode" data-mode="laptop">Laptop</button>
+            </div>
+            <div class="device-preview" id="genDevice" data-mode="normal">
+              <div class="device-frame device-normal">
+                <div class="icon-stage" id="iconStage">
+                  <canvas id="iconCanvas" width="512" height="512"></canvas>
+                  <p class="ar-empty" id="iconStageEmpty">Pick a generated icon or import one</p>
+                </div>
+              </div>
+              <div class="device-frame device-phone" aria-hidden="true" style="display:none">
+                <div class="phone-bezel">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen">
+                    <div class="phone-status">9:41</div>
+                    <div class="phone-home-grid">
+                      <div class="phone-app-slot highlighted"><canvas class="preview-mirror" data-mirror="iconCanvas" width="128" height="128"></canvas><span>App</span></div>
+                      <div class="phone-app-slot dim"></div>
+                      <div class="phone-app-slot dim"></div>
+                      <div class="phone-app-slot dim"></div>
+                    </div>
+                  </div>
+                  <div class="phone-bar"></div>
+                </div>
+              </div>
+              <div class="device-frame device-laptop" aria-hidden="true" style="display:none">
+                <div class="laptop-lid">
+                  <div class="laptop-screen">
+                    <div class="laptop-topbar"><span></span><span></span><span></span></div>
+                    <div class="laptop-desktop">
+                      <div class="laptop-icon-slot">
+                        <canvas class="preview-mirror" data-mirror="iconCanvas" width="128" height="128"></canvas>
+                        <span>My App</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="laptop-base"><div class="laptop-notch"></div></div>
+              </div>
+            </div>
+            <div class="create-export-row">
+              <button class="btn btn-primary" id="exportIcon" disabled>Export PNG</button>
+              <button class="btn btn-ghost" id="useIconForApp" disabled>Use for my app</button>
+            </div>
+            <p class="sub" style="text-align:center;margin-top:8px;">Export saves to your downloads. “Use for my app” opens Submit with this icon prefilled.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom design -->
+      <div class="create-pane" id="create-custom">
+        <div class="studio-grid create-grid">
+          <div class="studio-panel create-panel-scroll">
+            <h3>Custom icon designer</h3>
+            <p class="sub">Deep editor — colours, geometry, type, overlays. Changes paint live. Export or use for your app.</p>
+            <h4 class="ic-adv-title">Base</h4>
+            <div class="pm-row">
+              <div class="pm-field"><label>Background</label><input type="color" id="icBg" value="#121110" /></div>
+              <div class="pm-field"><label>Accent</label><input type="color" id="icAccent" value="#d4af37" /></div>
+            </div>
+            <div class="pm-field"><label>Second accent <span class="hint">gradients</span></label><input type="color" id="icAccent2" value="#f7e6b8" /></div>
+            <div class="pm-field">
+              <label>Shape</label>
+              <select id="icShape">
+                <option value="rounded">Rounded square</option>
+                <option value="circle">Circle</option>
+                <option value="hex">Hexagon</option>
+                <option value="diamond">Diamond</option>
+                <option value="shield">Shield</option>
+                <option value="ring">Ring mark</option>
+                <option value="triangle">Triangle</option>
+                <option value="octagon">Octagon</option>
+                <option value="blob">Soft blob</option>
+              </select>
+            </div>
+            <div class="pm-field"><label>Letter / monogram <span class="hint">max 4</span></label><input type="text" id="icLetter" maxlength="4" value="A" /></div>
+            <button type="button" class="ic-adv-toggle" id="icAdvToggle">Advanced settings ▾</button>
+            <div class="ic-advanced" id="icAdvanced" hidden>
+              <h4 class="ic-adv-title">Geometry</h4>
+              <div class="control-row"><label><span>Corner radius</span><span id="icRadVal">22</span></label><input type="range" id="icRad" min="0" max="48" value="22" /></div>
+              <div class="control-row"><label><span>Shape scale</span><span id="icScaleVal">100</span></label><input type="range" id="icScale" min="40" max="140" value="100" /></div>
+              <div class="control-row"><label><span>Rotation °</span><span id="icRotVal">0</span></label><input type="range" id="icRot" min="-45" max="45" value="0" /></div>
+              <div class="control-row"><label><span>Stroke weight</span><span id="icStrokeVal">5</span></label><input type="range" id="icStroke" min="0" max="16" value="5" /></div>
+              <div class="control-row"><label><span>Fill opacity</span><span id="icFillOpVal">20</span></label><input type="range" id="icFillOp" min="0" max="100" value="20" /></div>
+              <h4 class="ic-adv-title">Type</h4>
+              <div class="control-row"><label><span>Letter size</span><span id="icLetterSizeVal">22</span></label><input type="range" id="icLetterSize" min="10" max="40" value="22" /></div>
+              <div class="control-row"><label><span>Letter offset Y</span><span id="icLetterYVal">0</span></label><input type="range" id="icLetterY" min="-30" max="30" value="0" /></div>
+              <div class="pm-field"><label>Letter weight</label><select id="icLetterWeight"><option value="500">Medium</option><option value="600">Semi-bold</option><option value="700" selected>Bold</option><option value="800">Extra bold</option></select></div>
+              <h4 class="ic-adv-title">Surface</h4>
+              <div class="control-row"><label><span>Noise / grain</span><span id="icNoiseVal">30</span></label><input type="range" id="icNoise" min="0" max="80" value="30" /></div>
+              <div class="control-row"><label><span>Glow</span><span id="icGlowVal">40</span></label><input type="range" id="icGlow" min="0" max="100" value="40" /></div>
+              <div class="control-row"><label><span>Vignette</span><span id="icVigVal">25</span></label><input type="range" id="icVig" min="0" max="80" value="25" /></div>
+              <div class="control-row"><label><span>Inner shadow</span><span id="icShadowVal">20</span></label><input type="range" id="icShadow" min="0" max="60" value="20" /></div>
+              <div class="pm-field"><label>Overlay pattern</label><select id="icPattern"><option value="none">None</option><option value="grid">Grid</option><option value="dots">Dots</option><option value="diag">Diagonal lines</option><option value="rings">Concentric rings</option></select></div>
+              <div class="pm-field"><label>Gradient direction</label><select id="icGradDir"><option value="diag">Diagonal</option><option value="vert">Vertical</option><option value="horiz">Horizontal</option><option value="rad">Radial</option></select></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" id="icRandom">Randomize</button>
+              <button class="btn btn-ghost btn-sm" id="icReset">Reset</button>
+            </div>
+          </div>
+          <div class="create-stage-col">
+            <div class="preview-mode-bar" data-target="custom">
+              <button type="button" class="preview-mode active" data-mode="normal">Normal</button>
+              <button type="button" class="preview-mode" data-mode="phone">Phone</button>
+              <button type="button" class="preview-mode" data-mode="laptop">Laptop</button>
+            </div>
+            <div class="device-preview" id="customDevice" data-mode="normal">
+              <div class="device-frame device-normal">
+                <div class="icon-stage">
+                  <canvas id="customCanvas" width="512" height="512"></canvas>
+                </div>
+              </div>
+              <div class="device-frame device-phone" aria-hidden="true" style="display:none">
+                <div class="phone-bezel">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen">
+                    <div class="phone-status">9:41</div>
+                    <div class="phone-home-grid">
+                      <div class="phone-app-slot highlighted"><canvas class="preview-mirror" data-mirror="customCanvas" width="128" height="128"></canvas><span>App</span></div>
+                      <div class="phone-app-slot dim"></div>
+                      <div class="phone-app-slot dim"></div>
+                      <div class="phone-app-slot dim"></div>
+                    </div>
+                  </div>
+                  <div class="phone-bar"></div>
+                </div>
+              </div>
+              <div class="device-frame device-laptop" aria-hidden="true" style="display:none">
+                <div class="laptop-lid">
+                  <div class="laptop-screen">
+                    <div class="laptop-topbar"><span></span><span></span><span></span></div>
+                    <div class="laptop-desktop">
+                      <div class="laptop-icon-slot">
+                        <canvas class="preview-mirror" data-mirror="customCanvas" width="128" height="128"></canvas>
+                        <span>My App</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="laptop-base"><div class="laptop-notch"></div></div>
+              </div>
+            </div>
+            <div class="create-export-row">
+              <button class="btn btn-primary" id="exportCustom">Export PNG</button>
+              <button class="btn btn-ghost" id="useCustomForApp">Use for my app</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MLabs company apps -->
+      <div class="create-pane" id="create-company">
+        <div class="section-head lib-subhead">
+          <h3>MLabs · developer toolkit apps</h3>
+          <span class="lib-count" id="companyCount"></span>
+        </div>
+        <p class="lib-hint">Apps whose name, tagline, or description lean toward code, programming, software, and building tools — plus anything you published in developer mode.</p>
+        <div class="app-grid" id="companyGrid"></div>
+        <div class="empty-state compact" id="companyEmpty" style="display:none;">
+          <p>No matching toolkit apps yet. Publish from developer mode or browse the catalogue.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Library ============ -->
+    <section class="view" id="view-library">
+      <div class="section-head"><h2>Your library</h2></div>
+
+      <div class="lib-block">
+        <div class="section-head lib-subhead">
+          <h3>Installed</h3>
+          <span class="lib-count" id="installedCount"></span>
+        </div>
+        <div class="app-grid" id="libraryGrid"></div>
+        <div class="empty-state compact" id="libraryEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19V5a1 1 0 011-1h11l4 4v11a1 1 0 01-1 1H5a1 1 0 01-1-1z"/></svg>
+          <p>Nothing installed yet. Install apps from Discover and they’ll show up here.</p>
+        </div>
+      </div>
+
+      <div class="lib-block">
+        <div class="section-head lib-subhead">
+          <h3>Your uploads</h3>
+          <span class="lib-count" id="uploadsCount"></span>
+        </div>
+        <p class="lib-hint" id="uploadsHint">Apps you’ve submitted to Auriser. Edit listings or open the product page.</p>
+        <div class="app-grid" id="uploadsGrid"></div>
+        <div class="empty-state compact" id="uploadsEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+          <p id="uploadsEmptyMsg">No uploads yet. Sign in and use Submit app — your listings appear here so you can edit them.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Settings ============ -->
+    <section class="view" id="view-settings">
+      <div class="section-head"><h2>Settings</h2></div>
+
+      <div class="settings-grid">
+        <div class="studio-panel">
+          <h3>Account</h3>
+          <p class="sub">Who you're signed in as, and how you got in.</p>
+          <div id="settingsAccountSignedOut">
+            <p class="sub" style="margin-bottom:16px;">You're not signed in — sign in to publish apps and leave reviews.</p>
+            <button class="btn btn-primary btn-sm" id="settingsSignIn">Sign in</button>
+          </div>
+          <div id="settingsAccountSignedIn" style="display:none;">
+            <div class="settings-account-row">
+              <div class="auth-avatar" id="settingsAvatar">A</div>
+              <div>
+                <div class="auth-acc-name" id="settingsName">—</div>
+                <div class="auth-acc-email" id="settingsEmail">—</div>
+                <div class="auth-acc-provider" id="settingsProvider">—</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="settingsSignOut" style="margin-top:16px;">Sign out</button>
+          </div>
+        </div>
+
+        <div class="studio-panel">
+          <h3>Store options</h3>
+          <p class="sub">How the catalogue feels on this device.</p>
+          <div class="settings-row">
+            <span>Default sort on Discover</span>
+            <select id="settingsDefaultSort" class="settings-select">
+              <option value="trending">Trending</option>
+              <option value="updated">Recently updated</option>
+              <option value="rating">Highest rated</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <span>Compact app cards</span>
+            <label class="switch">
+              <input type="checkbox" id="settingsCompactCards" />
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Show editorial picks first</span>
+            <label class="switch">
+              <input type="checkbox" id="settingsEditorialFirst" checked />
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Reduce motion (animations)</span>
+            <label class="switch">
+              <input type="checkbox" id="settingsReduceMotion" />
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="studio-panel">
+          <h3>Appearance</h3>
+          <p class="sub">Auriser follows your system by default — override it here.</p>
+          <div class="settings-row">
+            <span>Theme</span>
+            <button class="btn btn-ghost btn-sm" id="settingsThemeToggle">Toggle light / dark</button>
+          </div>
+          <div class="settings-row">
+            <span>Welcome tour</span>
+            <button class="btn btn-ghost btn-sm" id="settingsReplayTour">Replay it</button>
+          </div>
+        </div>
+
+        <div class="studio-panel">
+          <h3>Notifications</h3>
+          <p class="sub">On-device reminders only — Auriser doesn't send push notifications yet.</p>
+          <div class="settings-row">
+            <span>Remind me about updates to apps I've installed</span>
+            <label class="switch">
+              <input type="checkbox" id="settingsNotifyUpdates" />
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="studio-panel">
+          <h3>Store status</h3>
+          <p class="sub">What Auriser is actually connected to right now.</p>
+          <div class="settings-row"><span>Backend</span><span id="settingsBackend" class="tag-new">—</span></div>
+          <div class="settings-row"><span>Apps in catalogue</span><span id="settingsAppCount" class="tag-new">—</span></div>
+          <div class="settings-row"><span>Installed on this device</span><span id="settingsInstalledCount" class="tag-new">—</span></div>
+          <div class="settings-row"><span>Signed-in user</span><span id="settingsUserStatus" class="tag-new">Guest</span></div>
+        </div>
+
+        <div class="studio-panel">
+          <h3>About Auriser</h3>
+          <p class="sub">A curated app store by MLabs · Michael Uchechukwu.</p>
+          <div class="settings-row"><span>Version</span><span class="tag-new">1.0.0 · Firebase</span></div>
+          <div class="settings-row"><span>Publisher</span><span class="tag-new">MLabs</span></div>
+          <div class="settings-row">
+            <span>Get a download link</span>
+            <button class="btn btn-ghost btn-sm" id="settingsOpenLinkHelp">GitHub tutorial</button>
+          </div>
+        </div>
+
+        <div class="studio-panel" id="settingsDevPanel" style="display:none;">
+          <h3>Developer mode</h3>
+          <p class="sub">Unlocked — you can edit or remove any listing, not just your own.</p>
+          <button class="btn btn-ghost btn-sm" id="settingsLeaveDev">Leave developer mode</button>
+        </div>
+
+        <div class="studio-panel">
+          <h3 style="color:#e07070;">Danger zone</h3>
+          <p class="sub">Local to this device only — doesn't touch your published listings on Firebase.</p>
+          <button class="btn btn-ghost btn-sm" id="settingsClearLibrary">Clear installed apps from this device</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Full app product page ============ -->
+    <section class="view" id="view-app">
+      <div id="appPage" class="app-page"></div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Screenshot lightbox -->
+<div class="shot-lightbox" id="shotLightbox" hidden>
+  <button type="button" class="shot-lightbox-close" id="shotLightboxClose" aria-label="Close">×</button>
+  <img id="shotLightboxImg" alt="Screenshot preview" />
+</div>
+
+<!-- ============================================================
+     Submit app modal — full offline simulation
+     ============================================================ -->
+<div class="publish-scrim" id="publishScrim"></div>
+<div class="publish-modal" id="publishModal" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+  <div class="pm-head">
+    <div>
+      <h2 id="pmTitle">Submit your app</h2>
+      <p>Your listing is saved to Firebase and tagged to your account. You can edit or remove it anytime from Library → Your uploads.</p>
+    </div>
+    <button class="pm-close" id="publishClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="pm-steps" id="pmSteps">
+    <div class="pm-step active" data-step="0"></div>
+    <div class="pm-step" data-step="1"></div>
+    <div class="pm-step" data-step="2"></div>
+  </div>
+
+  <!-- Step 0: Basics -->
+  <div class="pm-form active" id="pmForm0" data-step="0">
+    <div class="pm-field" id="field-name">
+      <label>App name <span class="hint">required</span></label>
+      <input type="text" id="pmName" placeholder="e.g. Nightframe" maxlength="48" autocomplete="off" />
+      <div class="error">Give your app a name.</div>
+    </div>
+    <div class="pm-field" id="field-tagline">
+      <label>Tagline <span class="hint">one line on the card</span></label>
+      <input type="text" id="pmTagline" placeholder="A short line that sells the idea" maxlength="80" autocomplete="off" />
+      <div class="error">Add a short tagline.</div>
+    </div>
+    <div class="pm-field" id="field-desc">
+      <label>Description <span class="hint">shown in the detail panel</span></label>
+      <textarea id="pmDesc" placeholder="What does it do? Who is it for? What makes it worth keeping?"></textarea>
+      <div class="error">Write at least a short description.</div>
+    </div>
+    <div class="pm-row">
+      <div class="pm-field" id="field-version">
+        <label>Version</label>
+        <input type="text" id="pmVersion" placeholder="1.0.0" value="1.0.0" autocomplete="off" />
+        <div class="error">Version is required.</div>
+      </div>
+      <div class="pm-field" id="field-genre">
+        <label>Genre / category</label>
+        <select id="pmGenre">
+          <option value="">Select…</option>
+          <option value="productivity">Productivity</option>
+          <option value="creative">Creative Tools</option>
+          <option value="utilities">Utilities</option>
+          <option value="dev">Developer</option>
+          <option value="media">Media</option>
+          <option value="games">Games</option>
+        </select>
+        <div class="error">Pick a category.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Details & links -->
+  <div class="pm-form" id="pmForm1" data-step="1">
+    <div class="pm-row">
+      <div class="pm-field" id="field-size">
+        <label>App size <span class="hint">e.g. 48 MB</span></label>
+        <input type="text" id="pmSize" placeholder="48 MB" autocomplete="off" />
+        <div class="error">Enter an approximate size.</div>
+      </div>
+      <div class="pm-field" id="field-hue">
+        <label>Accent hue <span class="hint">0–360</span></label>
+        <input type="number" id="pmHue" min="0" max="360" value="42" />
+      </div>
+    </div>
+    <div class="pm-field" id="field-link">
+      <label>Download link <span class="hint">URL people will use to get your app</span></label>
+      <input type="url" id="pmLink" placeholder="https://example.com/download" autocomplete="off" />
+      <div class="error">Add a download URL (can be a placeholder).</div>
+      <button type="button" class="link-inline" id="noLinkHelp">I don't have a download link for my app</button>
+    </div>
+    <div class="pm-field" id="field-dev">
+      <label>Publisher</label>
+      <input type="text" id="pmDev" placeholder="Studio or handle" value="MLabs" autocomplete="off" />
+    </div>
+    <div class="pm-field">
+      <label>Optional notes <span class="hint">changelog, system requirements…</span></label>
+      <textarea id="pmNotes" placeholder="Anything else reviewers should know." style="min-height:64px;"></textarea>
+    </div>
+  </div>
+
+  <!-- Step 2: Icon + screenshots + review -->
+  <div class="pm-form" id="pmForm2" data-step="2">
+    <div class="pm-field" id="field-icon">
+      <label>App icon <span class="hint">optional — PNG / JPG / SVG</span></label>
+      <div class="pm-icon-drop" id="pmIconDrop">
+        <div class="pm-icon-preview" id="pmIconPreview"><img alt="" id="pmIconImg" /></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+        <p>Drop an icon, or click to browse</p>
+        <span>Stays on your device · used for the card preview</span>
+        <input type="file" id="pmIconFile" accept="image/*" />
+      </div>
+    </div>
+    <div class="pm-field" id="field-shots">
+      <label>App screenshots <span class="hint">optional · up to 3 images</span></label>
+      <div class="pm-shots" id="pmShots">
+        <div class="pm-shot-slot empty" data-slot="0">
+          <img alt="" />
+          <button type="button" class="pm-shot-remove" aria-label="Remove" title="Remove">×</button>
+          <span class="pm-shot-add">+</span>
+        </div>
+        <div class="pm-shot-slot empty" data-slot="1">
+          <img alt="" />
+          <button type="button" class="pm-shot-remove" aria-label="Remove" title="Remove">×</button>
+          <span class="pm-shot-add">+</span>
+        </div>
+        <div class="pm-shot-slot empty" data-slot="2">
+          <img alt="" />
+          <button type="button" class="pm-shot-remove" aria-label="Remove" title="Remove">×</button>
+          <span class="pm-shot-add">+</span>
+        </div>
+      </div>
+      <input type="file" id="pmShotFile" accept="image/*" style="display:none;" />
+      <p class="sub" style="margin-top:8px;font-size:11.5px;">Shown in the app preview panel. PNG / JPG · stays on device.</p>
+    </div>
+    <div class="pm-field">
+      <label>Preview summary</label>
+      <div id="pmPreviewBox" style="background:var(--panel-inset);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.55;color:var(--ink-dim);">
+        Fill the earlier steps — a live summary appears here.
+      </div>
+    </div>
+  </div>
+
+  <div class="pm-success" id="pmSuccess">
+    <div class="check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h3>Submitted to the catalogue</h3>
+    <p id="pmSuccessMsg">Your app is now visible in Discover and Categories for this session. Reload clears simulated submissions.</p>
+    <button class="btn btn-primary" id="pmDone">Back to the store</button>
+  </div>
+
+  <div class="pm-actions" id="pmActions">
+    <div class="left">
+      <button class="btn btn-ghost btn-sm" id="pmBack" style="display:none;">Back</button>
+    </div>
+    <div class="right">
+      <button class="btn btn-ghost" id="pmCancel">Cancel</button>
+      <button class="btn btn-primary" id="pmNext">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Auth modal — Google + email/password (offline simulation)
+     ============================================================ -->
+<div class="publish-scrim" id="authScrim"></div>
+<div class="publish-modal auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="pm-head">
+    <div>
+      <h2 id="authTitle">Sign in to Auriser</h2>
+      <p id="authSubtitle">Sign in with Google or email. Your published apps and reviews stay linked to this account on Firebase.</p>
+    </div>
+    <button class="pm-close" id="authClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div id="authSignedOut">
+    <button class="btn-google" id="authGoogle" type="button">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12 11v2.5h5.6c-.2 1.3-1.6 3.9-5.6 3.9-3.4 0-6.1-2.8-6.1-6.2S8.6 5 12 5c1.9 0 3.2.8 4 1.5l2.1-2.1C16.6 2.9 14.5 2 12 2 6.5 2 2 6.5 2 12s4.5 10 10 10c5.8 0 9.6-4.1 9.6-9.8 0-.7-.1-1.2-.2-1.7H12z"/><path fill="#34A853" d="M3.9 7.4l2.2 1.6C6.9 6.7 9.2 5 12 5c1.9 0 3.2.8 4 1.5l2.1-2.1C16.6 2.9 14.5 2 12 2 8.1 2 4.8 4.2 3.9 7.4z"/><path fill="#FBBC05" d="M12 22c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.8.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8l-2.3 1.8C6.1 19.6 8.8 22 12 22z"/><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.2-.2-1.7H12v3.4h5.4c-.2 1.2-1 2.2-2 2.9l2.9 2.2c1.7-1.6 2.7-3.9 2.7-6.8z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-divider"><span>or</span></div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-auth-tab="signin" type="button">Sign in</button>
+      <button class="auth-tab" data-auth-tab="signup" type="button">Create account</button>
+    </div>
+
+    <div id="authSignInPane">
+      <div class="pm-field" id="field-auth-email">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="you@gmail.com" autocomplete="username" />
+        <div class="error">Enter a valid email.</div>
+      </div>
+      <div class="pm-field" id="field-auth-pass">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" />
+          <button type="button" class="pass-toggle" data-pass="authPass" aria-label="Show password" title="Show password">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="display:none"><path d="M17.9 17.9A10.9 10.9 0 0112 19c-7 0-11-7-11-7a19.5 19.5 0 015-5.1M9.9 4.2A10.5 10.5 0 0112 4c7 0 11 8 11 8a19 19 0 01-2.2 3.1M1 1l22 22"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+          </button>
+        </div>
+        <div class="error">Password required.</div>
+      </div>
+      <button class="btn btn-primary" id="authSignInBtn" style="width:100%;margin-top:8px;">Sign in</button>
+    </div>
+
+    <div id="authSignUpPane" style="display:none;">
+      <div class="pm-field" id="field-su-name">
+        <label>Display name</label>
+        <input type="text" id="suName" placeholder="Michael Uchechukwu" autocomplete="nickname" />
+        <div class="error">Name is required.</div>
+      </div>
+      <div class="pm-field" id="field-su-email">
+        <label>Email</label>
+        <input type="email" id="suEmail" placeholder="you@gmail.com" autocomplete="username" />
+        <div class="error">Enter a valid email.</div>
+      </div>
+      <div class="pm-field" id="field-su-pass">
+        <label>Password <span class="hint">min 6 characters</span></label>
+        <div class="pass-wrap">
+          <input type="password" id="suPass" placeholder="••••••••" autocomplete="new-password" />
+          <button type="button" class="pass-toggle" data-pass="suPass" aria-label="Show password" title="Show password">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="display:none"><path d="M17.9 17.9A10.9 10.9 0 0112 19c-7 0-11-7-11-7a19.5 19.5 0 015-5.1M9.9 4.2A10.5 10.5 0 0112 4c7 0 11 8 11 8a19 19 0 01-2.2 3.1M1 1l22 22"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+          </button>
+        </div>
+        <div class="error">At least 6 characters.</div>
+      </div>
+      <div class="pm-field" id="field-su-pass2">
+        <label>Confirm password</label>
+        <div class="pass-wrap">
+          <input type="password" id="suPass2" placeholder="••••••••" autocomplete="new-password" />
+          <button type="button" class="pass-toggle" data-pass="suPass2" aria-label="Show password" title="Show password">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="display:none"><path d="M17.9 17.9A10.9 10.9 0 0112 19c-7 0-11-7-11-7a19.5 19.5 0 015-5.1M9.9 4.2A10.5 10.5 0 0112 4c7 0 11 8 11 8a19 19 0 01-2.2 3.1M1 1l22 22"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+          </button>
+        </div>
+        <div class="error">Passwords must match.</div>
+      </div>
+      <button class="btn btn-primary" id="authSignUpBtn" style="width:100%;margin-top:8px;">Create account</button>
+    </div>
+  </div>
+
+  <div id="authSignedIn" style="display:none;">
+    <div class="auth-account-card">
+      <div class="auth-avatar" id="authAvatar">M</div>
+      <div>
+        <div class="auth-acc-name" id="authAccName">—</div>
+        <div class="auth-acc-email" id="authAccEmail">—</div>
+        <div class="auth-acc-provider" id="authAccProvider">—</div>
+      </div>
+    </div>
+    <p class="sub" style="margin:14px 0 18px;">Apps you submit are tagged to this account. Other visitors would see Install; you see Update / Remove.</p>
+    <button class="btn btn-ghost" id="authSignOutBtn" style="width:100%;">Sign out</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Remove app — password confirmation
+     ============================================================ -->
+<div class="publish-scrim" id="removeScrim"></div>
+<div class="publish-modal remove-modal" id="removeModal" role="dialog" aria-modal="true" aria-labelledby="removeTitle">
+  <div class="pm-head">
+    <div>
+      <h2 id="removeTitle">Remove from store</h2>
+      <p id="removeSubtitle">This permanently removes your listing from the Auriser catalogue. Confirm to continue.</p>
+    </div>
+    <button class="pm-close" id="removeClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="pm-field" id="field-remove-pass">
+    <label>Account password</label>
+    <div class="pass-wrap">
+      <input type="password" id="removePass" placeholder="Enter your password" autocomplete="current-password" />
+      <button type="button" class="pass-toggle" data-pass="removePass" aria-label="Show password" title="Show password">
+        <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="display:none"><path d="M17.9 17.9A10.9 10.9 0 0112 19c-7 0-11-7-11-7a19.5 19.5 0 015-5.1M9.9 4.2A10.5 10.5 0 0112 4c7 0 11 8 11 8a19 19 0 01-2.2 3.1M1 1l22 22"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+      </button>
+    </div>
+    <div class="error">Incorrect password.</div>
+  </div>
+  <div class="pm-actions" style="margin-top:8px;">
+    <div class="left"></div>
+    <div class="right">
+      <button class="btn btn-ghost" id="removeCancel">Cancel</button>
+      <button class="btn btn-danger" id="removeConfirm">Remove app</button>
+    </div>
+  </div>
+</div>
+
+<div class="publish-scrim linkhelp-scrim" id="linkHelpScrim"></div>
+<div class="publish-modal linkhelp-modal" id="linkHelpModal" role="dialog" aria-modal="true" aria-labelledby="linkHelpTitle">
+  <div class="pm-head">
+    <div>
+      <h2 id="linkHelpTitle">Getting a download link</h2>
+      <p>GitHub Releases hosts your file for free and gives you a permanent link. Follow these steps once — then paste the link into Auriser.</p>
+    </div>
+    <button class="pm-close" id="linkHelpClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="ghelp-intro">
+    <p>You do <b>not</b> need to pay for hosting. GitHub Releases is free for public repositories. The real installer stays on GitHub; Auriser only stores the link.</p>
+  </div>
+
+  <ol class="ghelp-steps">
+    <li>
+      <b>1. Open GitHub</b>
+      <p>Go to <a href="https://github.com" target="_blank" rel="noopener noreferrer">github.com</a> and sign in (or create a free account). Click <b>Open GitHub</b> below if you prefer a new tab.</p>
+    </li>
+    <li>
+      <b>2. Create a new repository</b>
+      <p>Click the <b>+</b> in the top-right → <b>New repository</b>. Name it after your app (e.g. <code>nightframe</code>). Keep it <b>Public</b> — private files cannot be downloaded by other people. Click <b>Create repository</b>.</p>
+    </li>
+    <li>
+      <b>3. Open Releases</b>
+      <p>Inside your new repo, find <b>Releases</b> in the right-hand sidebar (or go to the URL <code>…/releases</code>), then click <b>Create a new release</b>.</p>
+    </li>
+    <li>
+      <b>4. Upload your app file</b>
+      <p>Set a version tag (e.g. <code>v1.0.0</code>), add a short title, then drag your built <code>.exe</code> / <code>.apk</code> / <code>.zip</code> / <code>.msi</code> into the <b>Attach binaries</b> box. Click <b>Publish release</b>.</p>
+    </li>
+    <li>
+      <b>5. Copy the file's direct link</b>
+      <p>On the release page, right-click the uploaded file and choose <b>Copy link address</b>. It should look like:</p>
+      <code class="ghelp-example">https://github.com/you/repo/releases/download/v1.0.0/YourApp.exe</code>
+      <p style="margin-top:8px;">Use the full <code>https://</code> link — not the Releases page URL.</p>
+    </li>
+    <li>
+      <b>6. Paste it back into Auriser</b>
+      <p>Click <b>Back to publishing</b> below, then paste that link into the <b>Download link</b> field. Anyone who taps Download on your product page will open that file.</p>
+    </li>
+  </ol>
+
+  <div class="ghelp-tip">
+    <b>Tip:</b> Windows may warn about unsigned <code>.exe</code> files from unknown publishers. That is normal for student builds. Sign the binary later if you want fewer SmartScreen warnings.
+  </div>
+
+  <div class="pm-actions" style="margin-top:12px;">
+    <div class="left">
+      <a class="btn btn-ghost" id="linkHelpGithub" href="https://github.com/new" target="_blank" rel="noopener noreferrer">Open GitHub</a>
+    </div>
+    <div class="right">
+      <button class="btn btn-primary" id="linkHelpBack">Back to publishing</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-api.js"></script>
+<script src="js/store-data.js"></script>
+<script src="js/onboarding.js"></script>
+<script src="js/design-studio.js"></script>
+<script src="js/ribbon-anim.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

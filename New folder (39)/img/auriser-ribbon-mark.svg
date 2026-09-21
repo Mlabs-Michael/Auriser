@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Auriser" fill="none">
+  <defs>
+    <linearGradient id="ag" x1="30" y1="20" x2="170" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fbf0c9"/><stop offset=".22" stop-color="#e9d391"/>
+      <stop offset=".42" stop-color="#d4af37"/><stop offset=".6" stop-color="#c39b2c"/>
+      <stop offset=".8" stop-color="#8d6c18"/><stop offset="1" stop-color="#6b4f0e"/>
+    </linearGradient>
+    <linearGradient id="ah" x1="60" y1="30" x2="140" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff8dd" stop-opacity=".62"/>
+      <stop offset=".45" stop-color="#f0d78a" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#d4af37" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ae" x1="20" y1="10" x2="180" y2="190" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff6d0" stop-opacity=".9"/>
+      <stop offset=".5" stop-color="#e8cd7e" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#5c430a" stop-opacity=".55"/>
+    </linearGradient>
+    <radialGradient id="as" cx="78" cy="58" r="82" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff4cc" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#fff4cc" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="ad" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.6" flood-color="#000" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <g filter="url(#ad)">
+    <path fill="url(#ag)" fill-rule="evenodd" d="M108 28 C128 28 148 48 148 78 C148 108 132 128 112 148 C100 160 92 172 92 178 C92 184 96 188 102 188 C108 188 112 184 112 178 L112 168 C112 158 122 148 138 132 C158 112 172 92 172 68 C172 36 148 16 118 16 C88 16 68 36 62 58 C56 48 44 42 32 48 C18 56 14 74 24 88 C34 102 52 106 66 98 C70 112 78 128 78 140 C78 152 70 162 58 162 C48 162 40 154 40 144 C40 136 46 130 54 130 C58 130 62 132 62 138 C62 142 60 144 58 144 C56 144 54 142 54 140 C54 138 56 136 58 136 C52 136 46 142 46 150 C46 160 54 168 66 168 C82 168 94 154 94 136 C94 120 86 100 78 84 C90 70 100 48 108 28 Z M108 48 C100 62 92 78 86 92 C96 88 108 78 116 64 C122 54 118 48 108 48 Z M48 62 C56 58 64 64 66 74 C58 80 48 76 44 70 C42 66 44 64 48 62 Z"/>
+    <path fill="url(#as)" fill-rule="evenodd" d="M108 28 C128 28 148 48 148 78 C148 108 132 128 112 148 C100 160 92 172 92 178 C92 184 96 188 102 188 C108 188 112 184 112 178 L112 168 C112 158 122 148 138 132 C158 112 172 92 172 68 C172 36 148 16 118 16 C88 16 68 36 62 58 C56 48 44 42 32 48 C18 56 14 74 24 88 C34 102 52 106 66 98 C70 112 78 128 78 140 C78 152 70 162 58 162 C48 162 40 154 40 144 C40 136 46 130 54 130 C58 130 62 132 62 138 C62 142 60 144 58 144 C56 144 54 142 54 140 C54 138 56 136 58 136 C52 136 46 142 46 150 C46 160 54 168 66 168 C82 168 94 154 94 136 C94 120 86 100 78 84 C90 70 100 48 108 28 Z M108 48 C100 62 92 78 86 92 C96 88 108 78 116 64 C122 54 118 48 108 48 Z M48 62 C56 58 64 64 66 74 C58 80 48 76 44 70 C42 66 44 64 48 62 Z"/>
+    <path fill="none" stroke="url(#ae)" stroke-width="1.6" stroke-linejoin="round" d="M108 28 C128 28 148 48 148 78 C148 108 132 128 112 148 C100 160 92 172 92 178 C92 184 96 188 102 188 C108 188 112 184 112 178 L112 168 C112 158 122 148 138 132 C158 112 172 92 172 68 C172 36 148 16 118 16 C88 16 68 36 62 58 C56 48 44 42 32 48 C18 56 14 74 24 88 C34 102 52 106 66 98 C70 112 78 128 78 140 C78 152 70 162 58 162 C48 162 40 154 40 144 C40 136 46 130 54 130 C58 130 62 132 62 138 C62 142 60 144 58 144 C56 144 54 142 54 140 C54 138 56 136 58 136 C52 136 46 142 46 150 C46 160 54 168 66 168 C82 168 94 154 94 136 C94 120 86 100 78 84 C90 70 100 48 108 28 Z M108 48 C100 62 92 78 86 92 C96 88 108 78 116 64 C122 54 118 48 108 48 Z M48 62 C56 58 64 64 66 74 C58 80 48 76 44 70 C42 66 44 64 48 62 Z"/>
+    <path fill="url(#ah)" fill-rule="evenodd" opacity=".9" d="M110 34 C126 36 140 52 140 74 C140 92 130 108 116 124 L118 100 C124 88 128 76 126 64 C124 50 118 40 110 34 Z"/>
+  </g>
+</svg>
