@@ -1,0 +1,16 @@
+# Local-only dev-mode key — keep this off GitHub
+local-only/
+*.termx
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Vercel CLI
+.vercel/
+
+# Node (only if you later add a local dev server)
+node_modules/

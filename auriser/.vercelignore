@@ -1,0 +1,6 @@
+# Never deploy these to the live site
+local-only/
+*.termx
+README.md
+DEPLOY.md
+.gitignore
