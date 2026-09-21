@@ -425,7 +425,7 @@
         if (typeof setCloudStatus === "function") {
           setCloudStatus("Live · Firebase · " + APPS.length, "live");
         }
-        toast("Account created — welcome, " + name);
+        toast("Confirmation email sent to " + (user.email || email) + " — check your inbox");
       } catch (err) {
         fEmail.classList.add("invalid");
         fEmail.querySelector(".error").textContent = err.message || "Could not create account.";

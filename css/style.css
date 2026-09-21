@@ -2600,3 +2600,107 @@ html.force-reduce-motion .onboard-avatar img.mark-ribbon {
   height: auto;
   max-height: 320px;
 }
+
+/* ==========================================================================
+   Responsive — tablet & phone
+   The shell is a fixed 2-column grid (rail + main). On smaller screens the
+   side rail becomes a horizontal bottom bar and everything stacks so nothing
+   gets clipped off-screen.
+   ========================================================================== */
+
+/* Tablet / small laptop */
+@media (max-width: 1024px) {
+  :root { --topbar-h: 66px; }
+  .view { padding: 26px 24px 100px; }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .hero-mark { order: -1; justify-self: center; }
+  .studio-grid,
+  .ar-grid { grid-template-columns: 1fr; }
+  .search-field { max-width: none; }
+  .topbar { gap: 14px; padding: 0 18px; }
+}
+
+/* Phone / narrow tablet — rail moves to the bottom */
+@media (max-width: 760px) {
+  :root { --rail-w: 0px; --topbar-h: 60px; }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--topbar-h) 1fr auto;
+    grid-template-areas:
+      "topbar"
+      "main"
+      "rail";
+    min-height: 100dvh;
+  }
+
+  /* Rail -> fixed bottom navigation bar */
+  .rail {
+    grid-area: rail;
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    border-right: none;
+    border-top: 1px solid var(--line);
+    background: rgba(10, 9, 8, 0.92);
+    backdrop-filter: blur(14px);
+  }
+  :root[data-theme="light"] .rail { background: rgba(251, 248, 240, 0.92); }
+
+  .rail-mark { display: none; }
+  .rail-nav {
+    flex-direction: row;
+    flex: 1;
+    justify-content: space-around;
+    gap: 2px;
+  }
+  .rail-foot { flex-direction: row; gap: 2px; }
+  .rail-btn { width: 44px; height: 44px; }
+  /* Active indicator moves from the side to the top on the bottom bar */
+  .rail-btn.active::before {
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 3px;
+  }
+  /* Tooltips don't make sense on a touch bottom bar */
+  .rail-btn .rail-tip { display: none; }
+
+  .main { height: auto; }
+
+  .view { padding: 20px 16px 40px; }
+
+  .topbar { gap: 10px; padding: 0 14px; }
+  .wordmark span { display: none; }
+  .topbar-right { gap: 6px; margin-left: auto; }
+  .profile-chip span { display: none; }
+  .profile-chip { padding: 5px; }
+  /* Non-essential topbar items — kept off the phone header to stop overflow.
+     Submit is still reachable from the hero action and the bottom rail. */
+  #cloudStatus { display: none; }
+  .btn-submit-app { font-size: 0; padding: 9px; gap: 0; }
+  .btn-submit-app svg { width: 18px; height: 18px; }
+  .topbar-right .icon-btn[aria-label="Notifications"] { display: none; }
+
+  .hero h1 { font-size: clamp(28px, 8vw, 40px); }
+
+  /* Any 2-up form grids collapse */
+  .pm-grid,
+  .su-grid { grid-template-columns: 1fr; }
+}
+
+/* Very small phones */
+@media (max-width: 420px) {
+  .view { padding: 16px 12px 36px; }
+  .app-grid { grid-template-columns: 1fr; }
+  .search-field input { font-size: 13px; }
+}

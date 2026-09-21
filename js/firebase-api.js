@@ -68,7 +68,26 @@
     if (name) {
       await cred.user.updateProfile({ displayName: name });
     }
+    // Send a confirmation email (Firebase-native verification link) to the
+    // address the user signed up with. Non-fatal if it fails.
+    try {
+      await cred.user.sendEmailVerification({
+        url: location.origin,
+        handleCodeInApp: false
+      });
+    } catch (e) {
+      console.warn("sendEmailVerification failed", e);
+    }
     return cred.user;
+  }
+
+  /** Re-send the confirmation email to the currently signed-in user. */
+  async function resendVerification() {
+    if (!init()) throw new Error("Firebase not ready");
+    const user = auth.currentUser;
+    if (!user) throw new Error("Sign in required");
+    await user.sendEmailVerification({ url: location.origin, handleCodeInApp: false });
+    return true;
   }
 
   async function signIn(email, password) {
@@ -305,6 +324,17 @@
     }
     const provider = new window.firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
+
+    // On phones/tablets popups are routinely blocked and break the OAuth
+    // flow, so go straight to a full-page redirect there.
+    const isTouch =
+      /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+      (window.matchMedia && window.matchMedia("(max-width: 860px)").matches);
+    if (isTouch) {
+      await auth.signInWithRedirect(provider);
+      return null; // page will navigate away
+    }
+
     try {
       const result = await auth.signInWithPopup(provider);
       return result.user;
